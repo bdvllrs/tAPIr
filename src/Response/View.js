@@ -10,7 +10,7 @@ exports.View = class View extends Response
         this.read = false;
         this.res = null;
 
-        fs.readFile(path.resolve(__dirname, '../../app/resources/views/', file), 'utf-8', (err, content) => {
+        fs.readFile(path.resolve(__dirname, '../../../../app/resources/views/', file), 'utf-8', (err, content) => {
             if (err) throw err;
             this.content = content;
             this.read = true;
