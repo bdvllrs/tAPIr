@@ -129,7 +129,8 @@ class RouterManager
             // action is of form Controler@action
             const action = route.action.split('@');
             // Import the controllers from the file
-            const Controllers = require(path.resolve(__dirname, '../../app/controllers', action[0] + '.js'));
+            const Controllers = require(path.resolve(this.config.app.appDir, './controllers', action[0] + '.js'));
+
             let nameController = action[0].split('/');
             // Get the name of the wanted controller
             nameController = nameController[nameController.length - 1];
