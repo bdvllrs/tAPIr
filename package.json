@@ -6,6 +6,7 @@
   "author": "bdvllrs",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "mustache": "^2.3.0"
   }
 }

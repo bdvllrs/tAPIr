@@ -6,7 +6,12 @@ const { View } = require('./Response/View');
 const {router, Router} = require('./Router');
 const {GetRoute, PostRoute, PutRoute, DeleteRoute} = require('./Router');
 
+const {Exception} = require('./Exceptions/Exception');
+
 const {walkDirectory, loadConfig} = require('./utils');
+
+const express = require('express');
+const app = express();
 
 exports.Controller = Controller;
 
@@ -29,7 +34,9 @@ exports.PostRoute = PostRoute;
 exports.PutRoute = PutRoute;
 exports.DeleteRoute = DeleteRoute;
 
-exports.listen = function(configDir, express, app) {
+exports.Exception = Exception;
+
+exports.listen = function(configDir) {
     const config = loadConfig(configDir);
 
     /* Reading the route folder to load the routes */
