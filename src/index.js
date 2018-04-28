@@ -1,3 +1,4 @@
+const path = require('path');
 const { Controller } = require('./Controller');
 const { Request } = require('./Request');
 const { Response } = require('./Response/Response');
@@ -27,4 +28,19 @@ exports.GetRoute = GetRoute;
 exports.PostRoute = PostRoute;
 exports.PutRoute = PutRoute;
 exports.DeleteRoute = DeleteRoute;
+
+exports.listen = function(configDir, express, app) {
+    const config = loadConfig(configDir);
+
+    /* Reading the route folder to load the routes */
+    const routeFiles = walkDirectory(path.resolve(config.app.appDir, './routes'));
+
+    router.setConfig(config);
+
+    router.register(routeFiles);
+
+    router.listen(express, app, config.app.port, config.app.host, () => {
+        console.log('Server listing on ' + config.app.host + ':' + config.app.port);
+    });
+};
 

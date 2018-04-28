@@ -21,6 +21,11 @@ exports.Controller = class Controller
         if (resp === undefined) {
             this._res.sendStatus(200);
         }
+        // If the resp is a View object
+        else if(resp instanceof View) {
+            resp.setConfig(self.config);
+            resp.send(this._res);
+        }
         // If the resp is a Resp object
         else if (resp instanceof Response) {
             resp.send(this._res);
