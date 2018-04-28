@@ -1,4 +1,4 @@
-const { Response } = require('./Response/Response');
+const { Response, View } = require('../');
 
 exports.Controller = class Controller
 {
