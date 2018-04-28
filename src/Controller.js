@@ -18,14 +18,13 @@ exports.Controller = class Controller
      * @param {string} method: method to execute
      */
     execute(method) {
-        console.log(View);
         const resp = this[method]();
         if (resp === undefined) {
             this._res.sendStatus(200);
         }
         // If the resp is a View object
         else if(resp instanceof View) {
-            resp.setConfig(self.config);
+            resp.setConfig(this.config);
             resp.send(this._res);
         }
         // If the resp is a Resp object
