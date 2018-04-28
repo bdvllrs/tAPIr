@@ -1,4 +1,5 @@
-const { Response, View } = require('./');
+const { Response } = require('./Response/Response');
+const { View } = require('./Response/View');
 
 exports.Controller = class Controller
 {
@@ -17,6 +18,7 @@ exports.Controller = class Controller
      * @param {string} method: method to execute
      */
     execute(method) {
+        console.log(View);
         const resp = this[method]();
         if (resp === undefined) {
             this._res.sendStatus(200);
