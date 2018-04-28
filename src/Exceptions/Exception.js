@@ -1,10 +1,10 @@
 exports.Exception = class Exception
 {
     constructor(err) {
-        this.err = err;
+        this.error = err;
+        this.status = 200;
+        this.message = null;
     }
 
-    handle() {
-        return false;
-    }
+    handle() {}
 };

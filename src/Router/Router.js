@@ -1,4 +1,4 @@
-const {GetRoute, PostRoute, PutRoute, DeleteRoute} = require('./Route');
+const {GetRoute, PostRoute, PutRoute, PatchRoute, DeleteRoute} = require('./Route');
 
 
 exports.Router = class Router {
@@ -38,6 +38,17 @@ exports.Router = class Router {
      */
     static put(path, action, middlewares=[]) {
         return new PutRoute(path, action, middlewares);
+    }
+
+    /**
+     * Patch route
+     * @param {string} path
+     * @param {action} action
+     * @param {Array} middlewares
+     * @returns {PutRoute}
+     */
+    static patch(path, action, middlewares=[]) {
+        return new PatchRoute(path, action, middlewares);
     }
 
     /**

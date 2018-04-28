@@ -58,6 +58,21 @@ class RouterManager
     }
 
     /**
+     * Add a patch route
+     * @param {string} path: path to match
+     * @param {action|string} action
+     * @param {Array} middlewares
+     */
+    patch(path, action, middlewares = []) {
+        this.routes.push({
+            path,
+            action,
+            method: 'patch',
+            middlewares: middlewares
+        });
+    }
+
+    /**
      * Add a delete route
      * @param {string} path: path to match
      * @param {action|string} action
@@ -106,6 +121,15 @@ class RouterManager
             switch (route.method) {
                 case 'post':
                     app.post(path, ...route.middlewares, this.getRouteCallback(route));
+                    break;
+                case 'put':
+                    app.put(path, ...route.middlewares, this.getRouteCallback(route));
+                    break;
+                case 'patch':
+                    app.patch(path, ...route.middlewares, this.getRouteCallback(route));
+                    break;
+                case 'delete':
+                    app.delete(path, ...route.middlewares, this.getRouteCallback(route));
                     break;
                 default:
                     app.get(path, ...route.middlewares, this.getRouteCallback(route));

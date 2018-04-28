@@ -5,17 +5,23 @@ exports.ExceptionManager = class ExceptionManager {
     constructor(config, err) {
         this.err = err;
         this.exceptionFiles = walkDirectory(path.resolve(config.app.appDir, 'exceptions'));
-        this.exceptionReturns = [];
+        this.message = null;
+        this.status = 200;
         this.sendToExceptionsFiles();
     }
 
     sendToExceptionsFiles() {
-        this.exceptionFiles.forEach(file => {
-            const name = file.filename.split('.')[0];
-            const Exception = require(file.path)[name];
+        for(let i=0; i < this.exceptionFiles.length; i++) {
+            const name = this.exceptionFiles[i].filename.split('.')[0];
+            const Exception = require(this.exceptionFiles[i].path)[name];
             const exception = new Exception(this.err);
-            this.exceptionReturns.push(exception.handle());
-        });
+            exception.handle();
+            if(exception.status !== 200) {
+                this.message = exception.message;
+                this.status = exception.status;
+                break;
+            }
+        }
     }
 
     /**
@@ -23,7 +29,7 @@ exports.ExceptionManager = class ExceptionManager {
      * @returns {string}: error message
      */
     getMessage() {
-        return 'Error';
+        return this.message;
     }
 
     /**
@@ -31,7 +37,7 @@ exports.ExceptionManager = class ExceptionManager {
      * @returns {number}: status
      */
     getStatus() {
-        return 500;
+        return this.status;
     }
 
 

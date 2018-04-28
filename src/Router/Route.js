@@ -35,6 +35,12 @@ exports.PutRoute = class PutRoute extends Route {
     }
 };
 
+exports.PatchRoute = class PatchRoute extends Route {
+    attach(routerManager) {
+        routerManager.patch(this.path, this.action, this.middlewares)
+    }
+};
+
 exports.DeleteRoute = class DeleteRoute extends Route {
     attach(routerManager) {
         routerManager.delete(this.path, this.action, this.middlewares)
