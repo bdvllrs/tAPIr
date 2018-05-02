@@ -46,3 +46,9 @@ exports.DeleteRoute = class DeleteRoute extends Route {
         routerManager.delete(this.path, this.action, this.middlewares)
     }
 };
+
+exports.SocketRoute = class SocketRoute extends Route {
+    attach(routerManager) {
+        routerManager.socket(this.path, this.action, this.middlewares)
+    }
+};

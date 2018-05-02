@@ -3,8 +3,9 @@ const { Controller } = require('./Controller');
 const { Request } = require('./Request');
 const { Response } = require('./Response/Response');
 const { View } = require('./Response/View');
+const { Json } = require('./Response/Json');
+const { Socket } = require('./Response/Socket');
 const {router, Router} = require('./Router');
-const {GetRoute, PostRoute, PutRoute, DeleteRoute} = require('./Router');
 
 const {Exception} = require('./Exceptions/Exception');
 
@@ -12,6 +13,8 @@ const {walkDirectory, loadConfig} = require('./utils');
 
 const express = require('express');
 const app = express();
+const http = require('http').Server(app);
+const socket = require('socket.io')(http);
 
 exports.Controller = Controller;
 
@@ -19,6 +22,8 @@ exports.Request = Request;
 
 exports.Response = Response;
 exports.View = View;
+exports.Json = Json;
+exports.Socket = Socket;
 
 // Utils
 exports.walkDirectory = walkDirectory;
@@ -28,11 +33,6 @@ exports.loadConfig = loadConfig;
 exports.Router = Router;
 
 exports.router = router;
-
-exports.GetRoute = GetRoute;
-exports.PostRoute = PostRoute;
-exports.PutRoute = PutRoute;
-exports.DeleteRoute = DeleteRoute;
 
 exports.Exception = Exception;
 
@@ -46,7 +46,7 @@ exports.listen = function(configDir) {
 
     router.register(routeFiles);
 
-    router.listen(express, app, config.app.port, config.app.host, () => {
+    router.listen(express, app, http, socket, config.app.port, config.app.host, () => {
         console.log('Server listing on ' + config.app.host + ':' + config.app.port);
     });
 };

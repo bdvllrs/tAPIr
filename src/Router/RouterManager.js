@@ -1,5 +1,7 @@
 const path = require('path');
 const { Request } = require('../Request');
+const mongoose = require('mongoose');
+
 
 class RouterManager
 {
@@ -88,6 +90,21 @@ class RouterManager
     }
 
     /**
+     * Add a socket route
+     * @param {string} path: path to match
+     * @param {action|string} action
+     * @param {Array} middlewares
+     */
+    socket(path, action, middlewares = []) {
+        this.routes.push({
+            path,
+            action,
+            method: 'socket',
+            middlewares: middlewares
+        });
+    }
+
+    /**
      * Register all Route object
      * @param {Array} routeFiles: list of all Route object
      */
@@ -108,17 +125,22 @@ class RouterManager
      * Start the express server
      * @param express
      * @param app: express app
+     * @param http
+     * @param socket
      * @param {number} port:
      * @param {string} host:
      * @param callback
      */
-    listen(express, app, port, host = '127.0.0.1', callback = () => {}) {
+    listen(express, app, http, socket, port, host = '127.0.0.1', callback = () => {}) {
         app.use(express.static(path.resolve(this.config.app.appDir, './public')));
 
         /* Register all routes to express */
         this.routes.forEach(route => {
             const path = route.path[0] === '/' ? route.path : '/' + route.path;
             switch (route.method) {
+                case 'get':
+                    app.get(path, ...route.middlewares, this.getRouteCallback(route));
+                    break;
                 case 'post':
                     app.post(path, ...route.middlewares, this.getRouteCallback(route));
                     break;
@@ -131,13 +153,41 @@ class RouterManager
                 case 'delete':
                     app.delete(path, ...route.middlewares, this.getRouteCallback(route));
                     break;
-                default:
-                    app.get(path, ...route.middlewares, this.getRouteCallback(route));
             }
         });
 
+        /* SOCKET Routes */
+        const socketRoutes = this.routes.filter(route => route.method === 'socket');
+
+        socket.on('connection', (s) => {
+            socketRoutes.forEach(route => {
+                if(route.path === 'connection') {
+                    this.getRouteCallback(route)();
+                } else {
+                    s.on(route.path, this.getRouteCallback(route));
+                }
+            });
+        });
+
+        /* Connect to MongoDB */
+        try {
+            if(this.config.db.host) {
+                let connectVar = 'mongodb://';
+                if (this.config.db.username && this.config.db.password) {
+                    connectVar += this.config.db.username + ':' + this.config.db.password + '@';
+                }
+                connectVar += this.config.db.host;
+                if (this.config.db.port) {
+                    connectVar += ':' + this.config.db.port;
+                }
+                mongoose.connect(connectVar);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+
         /* Start the server */
-        app.listen(port, host, callback);
+        http.listen(port, host, callback);
     }
 
     /**
@@ -148,7 +198,7 @@ class RouterManager
      * @param {action|string} route.action
      * @returns {function(*=, *=): *}
      */
-    getRouteCallback(route) {
+    getRouteCallback(route, socket) {
         if (typeof route.action === 'string') {
             // action is of form Controler@action
             const action = route.action.split('@');
@@ -159,15 +209,29 @@ class RouterManager
             // Get the name of the wanted controller
             nameController = nameController[nameController.length - 1];
             // Return the callback
-            return (req, res) => {
-                // Initialize controller with request and response
-                const request = new Request(req);
-                const controller = new Controllers[nameController](request, res, this.config);
-                // Return the action
-                return controller.execute(action[1]);
-            };
+            if (route.method !== 'socket') {
+
+                return (req, res) => {
+                    // Initialize controller with request and response
+                    const request = new Request(req);
+                    const controller = new Controllers[nameController](request, res, socket, this.config);
+                    // Return the action
+                    return controller.execute(action[1]);
+                };
+            } else {
+                return (curSocket, ...params) => {
+                    // Initialize controller with request and response
+                    const controller = new Controllers[nameController](null, null, socket, this.config, curSocket, ...params);
+                    // Return the action
+                    return controller.execute(action[1]);
+                };
+            }
         } else {
-            return (req, res) => route.action(req, res);
+            if (route.method !== 'socket') {
+                return (req, res) => route.action(req, res);
+            } else {
+                return (socket, ...params) => route.action(socket, ...params);
+            }
         }
     }
 
