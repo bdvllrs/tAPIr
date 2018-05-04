@@ -1,15 +1,16 @@
 const path = require('path');
 const { Controller } = require('./Controller');
+const { Model } = require('./Model');
 const { Request } = require('./Request');
 const { Response } = require('./Response/Response');
 const { View } = require('./Response/View');
 const { Json } = require('./Response/Json');
 const { Socket } = require('./Response/Socket');
-const {router, Router} = require('./Router');
+const { router, Router } = require('./Router');
 
-const {Exception} = require('./Exceptions/Exception');
+const { Exception } = require('./Exceptions/Exception');
 
-const {walkDirectory, loadConfig} = require('./utils');
+const { walkDirectory, loadConfig } = require('./utils');
 
 const express = require('express');
 const app = express();
@@ -17,6 +18,8 @@ const http = require('http').Server(app);
 const socket = require('socket.io')(http);
 
 exports.Controller = Controller;
+
+exports.Model = Model;
 
 exports.Request = Request;
 
@@ -36,7 +39,7 @@ exports.router = router;
 
 exports.Exception = Exception;
 
-exports.listen = function(configDir) {
+exports.listen = function (configDir) {
     const config = loadConfig(configDir);
 
     /* Reading the route folder to load the routes */

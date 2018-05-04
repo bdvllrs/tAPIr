@@ -1,3 +1,5 @@
+const path = require('path');
+const { mongoose } = require('../mongoose');
 const { ExceptionManager } = require('./Exceptions/ExceptionManager');
 const { Response } = require('./Response/Response');
 const { View } = require('./Response/View');
@@ -15,14 +17,14 @@ exports.Controller = class Controller
      * @param params
      */
     constructor(request, res, socket, config, curSocket = null, ...params) {
-        this.request = request;
+        this.request = request !== null ? request : {};
         this._res = res;
         this.config = config;
         this.socket = {
             current: curSocket,
             global: socket
         };
-        this.socketParams = params;
+        this.request.params = params;
     }
 
     /**
@@ -50,7 +52,7 @@ exports.Controller = class Controller
                     resp = new Json(resp);
                 }
                 // If the resp is a Resp object
-                else if(this._res !== null){
+                else if (this._res !== null) {
                     resp.send(this._res);
                 }
             }
@@ -60,5 +62,14 @@ exports.Controller = class Controller
             const response = new Response(exceptionMng.getMessage(), exceptionMng.getStatus());
             response.send(this._res);
         }
+    }
+
+    /**
+     * Get Mongoose model
+     * @param modelName
+     */
+    model(modelName) {
+        const schema = require(path.resolve(this.config.app.appDir, './schemas/', modelName + '.js'))[modelName];
+        return mongoose.model(modelName, schema);
     }
 };
